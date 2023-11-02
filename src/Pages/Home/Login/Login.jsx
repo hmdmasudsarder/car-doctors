@@ -1,10 +1,14 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import img from "../../../assets/images/login/login.svg";
 import { useContext } from "react";
 import { AuthContext } from "../../../Provider/AuthProvider";
+import axios from "axios";
 
 const Login = () => {
     const {signIn} = useContext(AuthContext);
+    const location = useLocation();
+    console.log(location)
+    const navigate = useNavigate()
     const handleLogin= e => {
         e.preventDefault();
         const form = e.target;
@@ -12,8 +16,16 @@ const Login = () => {
         const password = form.password.value;
         signIn(email, password)
         .then(result => {
-            const user = result.user;
-            console.log(user)
+            const loggedUser = result.user;
+            
+            const user = {email};
+            axios.post('https://car-doctors-server-eight.vercel.app/jwt', user)
+            .then(data => {
+              console.log(data.data)
+              if(data.data.success){
+                navigate(location?.state ? location?.state : '/')
+              }
+            })
         })
         .catch(error => {
             console.log(error)
@@ -53,9 +65,9 @@ const Login = () => {
                   required
                 />
                 <label className="label">
-                  <a href="#" className="label-text-alt link link-hover">
+                  <button href="#" className="label-text-alt link link-hover">
                     Forgot password?
-                  </a>
+                  </button>
                 </label>
               </div>
               <div className="form-control mt-6">
